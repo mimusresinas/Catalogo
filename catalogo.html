@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#075E54">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Meu Catálogo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --green-dark: #075E54;
+    --green-mid: #128C7E;
+    --green-light: #25D366;
+    --green-pale: #DCF8C6;
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --border: #e8e8e8;
+    --text-primary: #111b21;
+    --text-secondary: #667781;
+    --text-light: #8696a0;
+    --accent: #075E54;
+    --danger: #f44336;
+    --shadow: 0 1px 3px rgba(0,0,0,0.12);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: var(--green-dark);
+    color: white;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+  }
+  .header-title { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+  .header-actions { display: flex; gap: 8px; }
+  .icon-btn {
+    background: none; border: none; color: white;
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 20px; transition: background 0.15s;
+  }
+  .icon-btn:active { background: rgba(255,255,255,0.15); }
+
+  /* Search bar in header */
+  .search-bar {
+    padding: 0 12px 12px;
+    display: none;
+  }
+  .search-bar.visible { display: block; }
+  .search-input-wrap {
+    background: white;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    padding: 8px 14px;
+    gap: 8px;
+  }
+  .search-input-wrap span { color: var(--text-light); font-size: 18px; }
+  .search-input-wrap input {
+    border: none; outline: none; font-family: 'Nunito', sans-serif;
+    font-size: 15px; width: 100%; color: var(--text-primary);
+  }
+  .search-input-wrap input::placeholder { color: var(--text-light); }
+
+  /* ─── TABS / CATEGORIES ─── */
+  .cats-scroll {
+    background: var(--green-mid);
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+    display: flex;
+  }
+  .cats-scroll::-webkit-scrollbar { display: none; }
+  .cat-tab {
+    display: inline-flex; align-items: center;
+    padding: 10px 18px;
+    color: rgba(255,255,255,0.75);
+    font-size: 13.5px; font-weight: 700;
+    cursor: pointer; border: none; background: none;
+    border-bottom: 3px solid transparent;
+    letter-spacing: 0.3px; text-transform: uppercase;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .cat-tab.active { color: white; border-bottom-color: var(--green-light); }
+  .cat-tab:active { background: rgba(255,255,255,0.08); }
+
+  /* ─── MAIN CONTENT ─── */
+  .main { padding: 12px; max-width: 600px; margin: 0 auto; }
+
+  /* ─── PRODUCT CARD ─── */
+  .product-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .product-card:active { box-shadow: var(--shadow-md); }
+  .product-body { padding: 14px 14px 10px; }
+  .product-cat-badge {
+    display: inline-block;
+    background: var(--green-pale);
+    color: var(--green-dark);
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px;
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .product-title { font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
+  .product-desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px; }
+  .product-value {
+    font-size: 18px; font-weight: 800; color: var(--green-dark); margin-bottom: 10px;
+  }
+  .product-actions {
+    display: flex; gap: 8px; border-top: 1px solid var(--border);
+    padding: 8px 14px;
+  }
+  .action-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 8px; border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; border: none; transition: background 0.15s;
+  }
+  .btn-copy-desc { background: #e8f5e9; color: var(--green-dark); }
+  .btn-copy-desc:active { background: #c8e6c9; }
+  .btn-copy-link { background: #e3f2fd; color: #1565C0; }
+  .btn-copy-link:active { background: #bbdefb; }
+  .btn-edit { background: var(--bg); color: var(--text-secondary); }
+  .btn-edit:active { background: #e0e0e0; }
+  .btn-delete { background: #ffebee; color: var(--danger); }
+  .btn-delete:active { background: #ffcdd2; }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--text-light);
+  }
+  .empty-icon { font-size: 64px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--text-secondary); }
+  .empty-sub { font-size: 14px; }
+
+  /* ─── FAB ─── */
+  .fab {
+    position: fixed; bottom: 24px; right: 20px;
+    width: 58px; height: 58px; border-radius: 50%;
+    background: var(--green-light);
+    color: white; border: none;
+    font-size: 28px; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(37,211,102,0.5);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 90;
+  }
+  .fab:active { transform: scale(0.93); box-shadow: 0 3px 10px rgba(37,211,102,0.4); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    width: 100%; max-height: 92dvh;
+    overflow-y: auto; padding: 20px 16px 32px;
+    transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle {
+    width: 40px; height: 4px; background: #ccc; border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; color: var(--text-primary); }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+  .form-input, .form-textarea, .form-select {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif; font-size: 15px; color: var(--text-primary);
+    background: var(--surface); outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--green-mid); }
+  .form-textarea { resize: vertical; min-height: 90px; }
+  .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23667781' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+  .btn-primary {
+    width: 100%; padding: 14px;
+    background: var(--green-dark); color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
+    cursor: pointer; margin-top: 4px; transition: background 0.15s;
+  }
+  .btn-primary:active { background: var(--green-mid); }
+  .btn-secondary {
+    width: 100%; padding: 13px;
+    background: var(--bg); color: var(--text-secondary);
+    border: none; border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; margin-top: 8px;
+  }
+
+  /* ─── CATEGORY MODAL ─── */
+  .cat-list-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 4px; border-bottom: 1px solid var(--border);
+    font-size: 15px; font-weight: 600;
+  }
+  .cat-delete-btn {
+    background: none; border: none; color: var(--danger);
+    font-size: 20px; cursor: pointer; padding: 4px 8px;
+  }
+  .cat-add-row { display: flex; gap: 8px; margin-top: 14px; }
+  .cat-add-row .form-input { margin: 0; }
+  .cat-add-btn {
+    padding: 12px 16px; background: var(--green-dark); color: white;
+    border: none; border-radius: var(--radius-sm); font-family: 'Nunito', sans-serif;
+    font-size: 15px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #323232; color: white; padding: 10px 20px;
+    border-radius: 24px; font-size: 14px; font-weight: 600;
+    opacity: 0; transition: opacity 0.25s, transform 0.25s;
+    z-index: 999; white-space: nowrap; pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    font-size: 12px; font-weight: 800; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 1px;
+    padding: 8px 4px 6px; margin-top: 4px;
+  }
+
+  /* Search highlight */
+  mark { background: #fff176; border-radius: 2px; padding: 0 1px; }
+
+  /* Scrollbar */
+  * { scrollbar-width: thin; scrollbar-color: #ccc transparent; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-title">📦 Meu Catálogo</div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="toggleSearch()" title="Buscar">🔍</button>
+      <button class="icon-btn" onclick="openCatModal()" title="Categorias">🗂️</button>
+      <button class="icon-btn" onclick="exportData()" title="Exportar">💾</button>
+      <button class="icon-btn" onclick="document.getElementById('importFile').click()" title="Importar">📂</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+  <div class="search-bar" id="searchBar">
+    <div class="search-input-wrap">
+      <span>🔍</span>
+      <input type="search" id="searchInput" placeholder="Buscar produto..." oninput="renderProducts()" autocomplete="off">
+    </div>
+  </div>
+  <div class="cats-scroll" id="catTabs"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="productList"></div>
+
+<!-- FAB -->
+<button class="fab" onclick="openProductModal()" title="Novo produto">＋</button>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">Novo Produto</div>
+    <div class="form-group">
+      <label class="form-label">Categoria</label>
+      <select class="form-select" id="fCat"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Título do Produto</label>
+      <input class="form-input" id="fTitle" type="text" placeholder="Ex: Chaveiro Coração Rosa" maxlength="100">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrição</label>
+      <textarea class="form-textarea" id="fDesc" placeholder="Descreva o produto, material, tamanho, cores..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Valor</label>
+        <input class="form-input" id="fValue" type="text" placeholder="R$ 0,00">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Link da Loja Virtual</label>
+      <input class="form-input" id="fLink" type="url" placeholder="https://...">
+    </div>
+    <button class="btn-primary" onclick="saveProduct()">Salvar Produto</button>
+    <button class="btn-secondary" onclick="closeProductModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Gerenciar Categorias</div>
+    <div id="catListEl"></div>
+    <div class="cat-add-row">
+      <input class="form-input" id="newCatInput" type="text" placeholder="Nova categoria..." maxlength="50"
+             onkeydown="if(event.key==='Enter') addCategory()">
+      <button class="cat-add-btn" onclick="addCategory()">Adicionar</button>
+    </div>
+    <button class="btn-secondary" style="margin-top:16px" onclick="closeCatModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────
+let data = { categories: [], products: [] };
+let editingId = null;
+let activeCategory = 'TODOS';
+
+function save() { localStorage.setItem('catalogo_v2', JSON.stringify(data)); }
+function load() {
+  const raw = localStorage.getItem('catalogo_v2');
+  if (raw) data = JSON.parse(raw);
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+load();
+renderTabs();
+renderProducts();
+
+// ─── TABS ────────────────────────────────────────────────────
+function renderTabs() {
+  const el = document.getElementById('catTabs');
+  const sorted = [...data.categories].sort((a,b) => a.localeCompare(b, 'pt-BR'));
+  const all = ['TODOS', ...sorted];
+  el.innerHTML = all.map(c =>
+    `<button class="cat-tab ${activeCategory===c?'active':''}" onclick="setCategory('${c.replace(/'/g,"\\'")}')">
+      ${c==='TODOS' ? '🏠 Todos' : c}
+    </button>`
+  ).join('');
+}
+
+function setCategory(cat) {
+  activeCategory = cat;
+  renderTabs();
+  renderProducts();
+}
+
+// ─── SEARCH ──────────────────────────────────────────────────
+function toggleSearch() {
+  const bar = document.getElementById('searchBar');
+  bar.classList.toggle('visible');
+  if (bar.classList.contains('visible')) document.getElementById('searchInput').focus();
+  else { document.getElementById('searchInput').value = ''; renderProducts(); }
+}
+
+// ─── PRODUCTS ────────────────────────────────────────────────
+function renderProducts() {
+  const el = document.getElementById('productList');
+  const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+  const sorted = [...data.categories].sort((a,b) => a.localeCompare(b, 'pt-BR'));
+
+  let filtered = data.products.filter(p => {
+    const inCat = activeCategory === 'TODOS' || p.category === activeCategory;
+    const inQ = !q || p.title.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+    return inCat && inQ;
+  });
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">${q ? 'Nenhum resultado' : 'Catálogo vazio'}</div>
+      <div class="empty-sub">${q ? 'Tente outra busca.' : 'Toque no + para adicionar seu primeiro produto.'}</div>
+    </div>`;
+    return;
+  }
+
+  // Group by category if TODOS
+  let html = '';
+  if (activeCategory === 'TODOS') {
+    // group
+    const groups = {};
+    filtered.forEach(p => {
+      const key = p.category || 'Sem Categoria';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(p);
+    });
+    const groupKeys = Object.keys(groups).sort((a,b) => a.localeCompare(b,'pt-BR'));
+    groupKeys.forEach(k => {
+      html += `<div class="section-header">${k}</div>`;
+      groups[k].forEach(p => html += productCard(p, q));
+    });
+  } else {
+    filtered.forEach(p => html += productCard(p, q));
+  }
+  el.innerHTML = html;
+}
+
+function hl(text, q) {
+  if (!q) return escHtml(text);
+  const re = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return escHtml(text).replace(re, '<mark>$1</mark>');
+}
+function escHtml(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function productCard(p, q='') {
+  const hasLink = p.link && p.link.trim();
+  return `
+  <div class="product-card">
+    <div class="product-body">
+      <span class="product-cat-badge">${escHtml(p.category)}</span>
+      <div class="product-title">${hl(p.title, q)}</div>
+      <div class="product-desc">${hl(p.desc, q)}</div>
+      <div class="product-value">${escHtml(p.value)}</div>
+    </div>
+    <div class="product-actions">
+      <button class="action-btn btn-copy-desc" onclick="copyText(\`${esc(p.title)}\n${esc(p.desc)}\n${esc(p.value)}\`)">📋 Descrição</button>
+      ${hasLink ? `<button class="action-btn btn-copy-link" onclick="copyText('${esc(p.link)}')">🔗 Link</button>` : ''}
+      <button class="action-btn btn-edit" onclick="editProduct('${p.id}')">✏️</button>
+      <button class="action-btn btn-delete" onclick="deleteProduct('${p.id}')">🗑️</button>
+    </div>
+  </div>`;
+}
+function esc(s) { return String(s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/'/g,"\\'"); }
+
+// ─── COPY ────────────────────────────────────────────────────
+function copyText(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => toast('✅ Copiado!')).catch(() => fallbackCopy(text));
+  } else fallbackCopy(text);
+}
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  toast('✅ Copiado!');
+}
+
+// ─── TOAST ───────────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ─── PRODUCT MODAL ───────────────────────────────────────────
+function openProductModal(id=null) {
+  editingId = id;
+  const p = id ? data.products.find(x=>x.id===id) : null;
+  document.getElementById('modalTitle').textContent = id ? 'Editar Produto' : 'Novo Produto';
+  document.getElementById('fTitle').value = p?.title || '';
+  document.getElementById('fDesc').value = p?.desc || '';
+  document.getElementById('fValue').value = p?.value || '';
+  document.getElementById('fLink').value = p?.link || '';
+
+  const sorted = [...data.categories].sort((a,b) => a.localeCompare(b,'pt-BR'));
+  const sel = document.getElementById('fCat');
+  if (!sorted.length) {
+    sel.innerHTML = '<option value="">— Crie uma categoria primeiro —</option>';
+  } else {
+    sel.innerHTML = sorted.map(c => `<option value="${escHtml(c)}" ${p?.category===c?'selected':''}>${escHtml(c)}</option>`).join('');
+  }
+  document.getElementById('productModal').classList.add('open');
+}
+function closeProductModal() { document.getElementById('productModal').classList.remove('open'); editingId=null; }
+
+function editProduct(id) { openProductModal(id); }
+
+function saveProduct() {
+  const cat = document.getElementById('fCat').value;
+  const title = document.getElementById('fTitle').value.trim();
+  const desc = document.getElementById('fDesc').value.trim();
+  const value = document.getElementById('fValue').value.trim();
+  const link = document.getElementById('fLink').value.trim();
+
+  if (!cat) { toast('⚠️ Selecione uma categoria!'); return; }
+  if (!title) { toast('⚠️ Informe o título!'); return; }
+
+  if (editingId) {
+    const idx = data.products.findIndex(x=>x.id===editingId);
+    data.products[idx] = { id:editingId, category:cat, title, desc, value, link };
+  } else {
+    data.products.push({ id: Date.now().toString(), category:cat, title, desc, value, link });
+  }
+  save(); renderProducts(); closeProductModal();
+  toast(editingId ? '✅ Produto atualizado!' : '✅ Produto adicionado!');
+}
+
+function deleteProduct(id) {
+  if (!confirm('Excluir este produto?')) return;
+  data.products = data.products.filter(x=>x.id!==id);
+  save(); renderProducts(); toast('🗑️ Produto excluído.');
+}
+
+// ─── CATEGORY MODAL ──────────────────────────────────────────
+function openCatModal() {
+  renderCatList();
+  document.getElementById('catModal').classList.add('open');
+}
+function closeCatModal() { document.getElementById('catModal').classList.remove('open'); }
+
+function renderCatList() {
+  const sorted = [...data.categories].sort((a,b) => a.localeCompare(b,'pt-BR'));
+  document.getElementById('catListEl').innerHTML = sorted.length
+    ? sorted.map(c => `
+        <div class="cat-list-item">
+          <span>${escHtml(c)}</span>
+          <button class="cat-delete-btn" onclick="deleteCategory('${esc(c)}')">🗑️</button>
+        </div>`).join('')
+    : '<p style="color:var(--text-light);font-size:14px;padding:8px 0">Nenhuma categoria ainda.</p>';
+}
+
+function addCategory() {
+  const input = document.getElementById('newCatInput');
+  const name = input.value.trim();
+  if (!name) { toast('⚠️ Digite o nome da categoria!'); return; }
+  if (data.categories.map(c=>c.toLowerCase()).includes(name.toLowerCase())) { toast('⚠️ Categoria já existe!'); return; }
+  data.categories.push(name);
+  save(); renderCatList(); renderTabs();
+  input.value = '';
+  toast('✅ Categoria adicionada!');
+}
+
+function deleteCategory(name) {
+  const count = data.products.filter(p=>p.category===name).length;
+  const msg = count
+    ? `"${name}" tem ${count} produto(s). Ao excluir, esses produtos ficarão sem categoria. Continuar?`
+    : `Excluir a categoria "${name}"?`;
+  if (!confirm(msg)) return;
+  data.categories = data.categories.filter(c=>c!==name);
+  data.products.forEach(p => { if(p.category===name) p.category='Sem Categoria'; });
+  if (!data.categories.includes('Sem Categoria') && data.products.some(p=>p.category==='Sem Categoria')) {
+    data.categories.push('Sem Categoria');
+  }
+  if (activeCategory === name) activeCategory = 'TODOS';
+  save(); renderCatList(); renderTabs(); renderProducts();
+  toast('🗑️ Categoria excluída.');
+}
+
+// Close modals on overlay click
+document.getElementById('productModal').addEventListener('click', function(e) { if(e.target===this) closeProductModal(); });
+document.getElementById('catModal').addEventListener('click', function(e) { if(e.target===this) closeCatModal(); });
+
+// ─── EXPORT / IMPORT ─────────────────────────────────────────
+function exportData() {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `catalogo_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('💾 Backup exportado!');
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!imported.categories || !imported.products) throw new Error();
+      if (!confirm(`Importar ${imported.products.length} produto(s) e ${imported.categories.length} categoria(s)? Isso substituirá os dados atuais.`)) return;
+      data = imported;
+      save(); activeCategory='TODOS'; renderTabs(); renderProducts();
+      toast('✅ Dados importados!');
+    } catch { toast('❌ Arquivo inválido!'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+</script>
+</body>
+</html>
